@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="js/pixi.min.js"></script>
+    <script>
+	const menu_music = new Audio("img/mus_birdsong.ogg");
+		var musicplay=1;
+		var app = new PIXI.Application(288,512);
+        document.body.appendChild(app.view);
+        var bg = new PIXI.Sprite.fromImage("img/bg_day.png");
+        app.stage.addChild(bg);
+		bg.width=576;
+		var gameover=new PIXI.Sprite.fromImage("img/text_game_over.png");
+		gameover.x=60;
+		gameover.y=150;
+		app.stage.addChild(gameover);
+		gameover.visible=false;
+		var botton=new PIXI.Sprite.fromImage("img/button_play.png");
+		app.stage.addChild(botton);
+		botton.x=90;
+		botton.y=206;
+		var title=new PIXI.Sprite.fromImage("img/title.png");
+		app.stage.addChild(title);
+		title.x=60;
+		title.y=106;
+		var bird0=new PIXI.Sprite.fromImage("img/bird0_0.png");
+		var bird1=new PIXI.Sprite.fromImage("img/bird0_1.png");
+		var land=new PIXI.Sprite.fromImage("img/land.png");
+		var botton1=new PIXI.Sprite.fromImage("img/button_pause.png");
+		var botton2=new PIXI.Sprite.fromImage("img/button_resume.png");
+		app.stage.addChild(botton1);
+		app.stage.addChild(botton2);
+		botton1.x=230;
+		botton2.x=260;
+		app.stage.addChild(land);
+		land.width=576;
+		land.y=450;
+		app.stage.addChild(bird0);
+		app.stage.addChild(bird1);
+		bird0.visible=true;
+		bird1.visible=false;
+		bg.interactive=true;
+		bird0.x=50;
+		bird0.y=206;
+		bird1.y=206;
+		bird1.x=50;
+		var pipes=[];
+		var k=0;
+		var i=0;
+		var j=0;
+		var n=0;
+		var b=0;
+		var golds=[];
+		var ismove=false;
+		var count=0;
+		var m=0;
+		var score=new PIXI.Text("得分");
+		app.stage.addChild(score);
+		botton.interactive=true;
+		botton.on("click",start);
+		botton1.interactive=true;
+		botton1.on("click",stop);
+		function stop(){
+			if(ismove==true){
+			ismove=false;
+			}
+			menu_music.pause();
+		}
+		botton2.interactive=true;
+		botton2.on("click",restart);
+		function restart(){
+			if(ismove==false)
+			ismove=true;
+			
+		}
+		function start(){
+			if(ismove==true){
+			ismove=false;
+			}
+			else if(ismove==false){
+				ismove=true;
+			}
+			if(botton.visible==true){
+			botton.visible=false;
+			}
+			else if(botton.visible==false){
+			botton.visible=true;
+			}
+			if(title.visible==true){
+				title.visible=false;
+			}
+			if(gameover.visible==true){
+				
+				location.reload();
+				
+			}
+			musicplay=2;
+			
+		}
+		bg.on("click",fly);
+		function fly(){
+			if(ismove==true){
+			up=2;
+			
+		}
+		}
+		const get=new Audio("img/get.ogg");
+		
+		var up=1;
+		var time=1;
+		var king=1;
+		app.ticker.add(animate);
+		function animate(){
+			time++;
+			if(ismove==true){
+			addgold();
+			birdmove();
+			bgmove();
+			if(up==2){
+				king++;
+				if(bird0.visible==true){
+					bird0.visible=false;
+					bird1.visible=true;
+					}
+				else if(bird0.visible==false){
+						bird0.visible=true;
+						bird1.visible=false;
+					}
+				bird0.y-=5;
+				bird1.y-=5;
+				if(king==30){
+					up=1;
+					king=0;
+				}
+			}
+			addboom();
+			}
+			if(time==1300){
+			time=0;
+			menu_music.play();
+			}
+			if(musicplay==2){
+				menu_music.play();
+				musicplay=1;
+			}
+			
+	
+		}
+		function birdmove(){
+			k++;
+			if(k==1){
+				bird0.y+=2;
+				bird1.y+=2;
+				k=0;
+				}
+				
+			
+		}
+		function bgmove(){
+		land.y=450;
+		land.x-=0.5;
+		if(land.x<-100){
+			land.x=0;
+		}
+		}
+		
+		function addgold(){
+			j++;
+			if(j==100){
+			var gold=new PIXI.Sprite.fromImage("img/medals_1.png");
+			app.stage.addChild(gold);
+			gold.y=Math.round(Math.random()*(400-0)+0);
+			gold.x=250;
+			golds.push(gold);
+			j=0;
+			}
+			for(n=0;n<golds.length;n++){
+				golds[n].x-=1;
+			}
+			for(n=0;n<golds.length;n++){
+			if(golds[n].x<-100){
+				app.stage.removeChild(golds[n]);
+			}
+			}
+			for(n=0;n<golds.length;n++){
+				var nowX=golds[n].x-bird0.x;
+				var nowY=bird0.y-golds[n].y;
+				if(nowY<0){
+					nowY=-nowY;
+				}
+				if(nowX<0){
+					nowX=-nowX;
+				}
+				if(nowX<(golds[n].width+bird0.width)/2&&nowY<(golds[n].height+bird0.height)/2){
+					app.stage.removeChild(golds[n]);
+					count++;
+					score.text="得分:"+count;
+					get.play();
+				}
+			}
+		}
+		function addboom(){
+			b++;
+			if(b==500){
+				var pipe=new PIXI.Sprite.fromImage("img/spr_battlebomb_0.png");
+				app.stage.addChild(pipe);
+				pipe.x=250;
+				pipe.y=Math.round(Math.random()*(400-0)+0);
+				pipes.push(pipe);
+				b=0;
+			}
+			for(m=0;m<pipes.length;m++){
+				pipes[m].x-=1;
+			}
+			for(m=0;m<pipes.length;m++){
+				if(pipes[m].x<-100){
+					app.stage.removeChild(pipes[m]);
+				}
+			}
+			for(m=0;m<pipes.length;m++){
+				var nowx=pipes[m].x-bird0.x;
+				var nowy=bird0.y-pipes[m].y;
+				if(nowx<0){
+					nowx=-nowx;
+				}
+				if(nowy<0){
+					nowy=-nowy;
+				}
+				if(nowx<=(pipes[m].width+bird0.width)/2&&nowy<=(pipes[m].height+bird0.height)/2){
+					ismove=false;
+					botton.visible=true;
+					gameover.visible=true;
+				}
+			}
+			
+		}
+		
+		
+		
+    </script>
+</body>
+</html>
