@@ -197,7 +197,7 @@
 				if(nowX<0){
 					nowX=-nowX;
 				}
-				if(nowX<(golds[n].width+bird0.width)/2&&nowY<(golds[n].height+bird0.height)/2){
+				if(nowX<=(golds[n].width+bird0.width)*0.5&&nowY<=(golds[n].height+bird0.height)*0.5){
 					app.stage.removeChild(golds[n]);
 					count++;
 					score.text="得分:"+count;
